@@ -19,7 +19,9 @@ services:
     volumes:
       - ./hf_cache:/root/.cache/huggingface
     command: >
-      --model unsloth/gemma-4-12B-it-qat-w4a16
+      --model google/gemma-4-12B-it-qat-w4a16-ct
       --max-model-len 32768
       --gpu-memory-utilization 0.90
+      --enable-auto-tool-choice
+      --tool-call-parser gemma4
     restart: unless-stopped
