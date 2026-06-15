@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  vllm-server:
+    build: .
+    container_name: vllm-gemma-server
+    ports:
+      - "8000:8000"
+    ipc: host
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    volumes:
+      - ./hf_cache:/root/.cache/huggingface
+    command: >
+      --model google/gemma-4-12B-it-qat-w4a16-ct
+      --max-model-len 32768
+      --gpu-memory-utilization 0.90
+    restart: unless-stopped
