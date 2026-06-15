@@ -21,7 +21,7 @@ logs:
 test:
 	@curl -s -X POST http://localhost:8000/v1/chat/completions \
 		-H "Content-Type: application/json" \
-		-d '{"model": "google/gemma-4-12B-it-qat-w4a16-ct", "messages": [{"role": "user", "content": "hello"}], "temperature": 0.7}'
+		-d '{"model": "unsloth/gemma-4-12B-it-qat-w4a16", "messages": [{"role": "user", "content": "hello"}], "temperature": 0.7}'
 
 clean: down
 	rm -rf hf_cache

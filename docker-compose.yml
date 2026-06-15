@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   vllm-server:
@@ -19,7 +19,7 @@ services:
     volumes:
       - ./hf_cache:/root/.cache/huggingface
     command: >
-      --model google/gemma-4-12B-it-qat-w4a16-ct
+      --model unsloth/gemma-4-12B-it-qat-w4a16
       --max-model-len 32768
       --gpu-memory-utilization 0.90
     restart: unless-stopped
