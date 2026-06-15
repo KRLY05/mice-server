@@ -1,0 +1,16 @@
+# Environment variables and secrets
+.env
+
+# Hugging Face cache
+hf_cache/
+
+# Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.venv/
+venv/
+env/

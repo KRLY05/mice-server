@@ -1,7 +1,11 @@
-.PHONY: setup build up down restart logs test clean
+.PHONY: setup build up down restart logs logs-vllm clean test
 
 setup:
-	@if [ ! -f .env ]; then echo "HF_TOKEN=" > .env; fi
+	@if [ ! -f .env ]; then \
+		echo "HF_TOKEN=" > .env; \
+		echo "TELEGRAM_BOT_TOKEN=" >> .env; \
+		echo "✅ .env template initialized. Please add your tokens."; \
+	fi
 
 build:
 	docker compose build
@@ -10,18 +14,21 @@ up: setup
 	docker compose up -d
 
 down:
-	docker compose down
+	docker compose --profile manual down
 
 restart:
-	docker compose restart
+	docker compose --profile manual restart
 
 logs:
-	docker compose logs -f
+	docker compose logs -f telegram-bot
+
+logs-vllm:
+	docker compose --profile manual logs -f vllm-server
 
 test:
 	@curl -s -X POST http://localhost:8000/v1/chat/completions \
 		-H "Content-Type: application/json" \
-		-d '{"model": "unsloth/gemma-4-12B-it-qat-w4a16", "messages": [{"role": "user", "content": "hello"}], "temperature": 0.7}'
+		-d '{"model": "google/gemma-4-12B-it-qat-w4a16-ct", "messages": [{"role": "user", "content": "hello"}], "temperature": 0.7}'
 
 clean: down
 	rm -rf hf_cache

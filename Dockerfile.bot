@@ -1,0 +1,12 @@
+FROM python:3.11-alpine
+
+RUN apk add --no-cache docker-cli docker-cli-compose
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY bot.py .
+
+CMD ["python", "bot.py"]

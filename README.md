@@ -1,27 +1,30 @@
-# local ML setup with gpu (models serving and compute)
+# vLLM Telegram Bot Controller
 
-## Prerequisites
-* NVIDIA Drivers & WSL2 installed on host.
-* Docker Desktop configured with WSL2 backend.
-* Hugging Face model access approved.
+Telegram bot which spins up vllm
 
-## Commands
+## Setup & Running
 
-```bash
-# Initialize .env file
-make setup
+1. **Configure Environment**:
+   ```bash
+   make setup
+   ```
+   Edit `.env` and fill in:
+   - `HF_TOKEN`
+   - `TELEGRAM_BOT_TOKEN`
 
-# Edit .env and add your HF_TOKEN
-# HF_TOKEN=your_token_here
+2. **Build and Run**:
+   ```bash
+   make build
+   make up      # Starts the Telegram Bot (vLLM starts dynamically via bot menu)
+   ```
 
-# Build and start server
-make up
-# Watch container logs
-make logs
-# Query the endpoint
-make test
-# Shutdown container
-make down
-# Clean container and delete cached weights
-make clean
-```
+## Commands Reference
+
+- `make logs` - Watch Telegram bot logs
+- `make logs-vllm` - Watch vLLM loading/completion logs
+- `make down` - Stop bot and vLLM containers
+- `make clean` - Stop containers and delete cached Hugging Face weights
+- `make test` - Test the OpenAI endpoint locally
+
+## Architecture Note
+The bot container mounts `/var/run/docker.sock` to dynamically spin up the `vllm-server` service defined in `docker-compose.yml` (managed under the `manual` profile) when a user requests it. Send `/stop` in the Telegram chat to put vLLM container down.
