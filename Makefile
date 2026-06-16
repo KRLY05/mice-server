@@ -1,4 +1,4 @@
-.PHONY: setup build up down restart logs logs-vllm clean test
+.PHONY: setup build up down restart logs logs-vllm logs-diff clean test
 
 setup:
 	@if [ ! -f .env ]; then \
@@ -24,6 +24,9 @@ logs:
 
 logs-vllm:
 	docker compose --profile manual logs -f vllm-server
+
+logs-diff:
+	docker compose --profile manual logs -f diffusion-server
 
 test:
 	@curl -s -X POST http://localhost:8000/v1/chat/completions \
