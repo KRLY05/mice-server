@@ -27,7 +27,7 @@ services:
     restart: unless-stopped
 
   diffusion-server:
-    image: yanwk/comfyui-boot:latest
+    image: yanwk/comfyui-boot:cu121
     container_name: diffusion-server
     profiles:
       - manual
