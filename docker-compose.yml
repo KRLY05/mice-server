@@ -17,7 +17,7 @@ services:
               count: all
               capabilities: [gpu]
     volumes:
-      - ${HF_CACHE_PATH:-./hf_cache}:/root/.cache/huggingface
+      - ${PROJECT_ROOT:-.}/${HF_CACHE_PATH:-hf_cache}:/root/.cache/huggingface
     command: >
       --model google/gemma-4-12B-it-qat-w4a16-ct
       --max-model-len 32768
@@ -29,6 +29,7 @@ services:
   diffusion-server:
     image: yanwk/comfyui-boot:cu121
     container_name: diffusion-server
+    entrypoint: bash -c "pip install comfy-aimdo && exec bash /runner-scripts/entrypoint.sh"
     profiles:
       - manual
     ports:
@@ -42,8 +43,8 @@ services:
               capabilities: [gpu]
     volumes:
       - ${COMFYUI_MODELS_PATH:-./models}:/models
-      - .:/app
-      - ./.empty:/runner-scripts/download-models.txt
+      - ${PROJECT_ROOT:-.}/extra_model_paths.yaml:/app/extra_model_paths.yaml
+      - ${PROJECT_ROOT:-.}/.empty:/runner-scripts/download-models.txt
     environment:
       - CLI_ARGS=--listen 0.0.0.0 --port 8188 --disable-auto-launch --extra-model-paths-config /app/extra_model_paths.yaml
     restart: unless-stopped
@@ -55,7 +56,11 @@ services:
     container_name: telegram-bot
     environment:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - PROJECT_ROOT=${PROJECT_ROOT}
+      - COMFYUI_MODELS_PATH=${COMFYUI_MODELS_PATH}
+      - DOCKER_SOCKET_PATH=${DOCKER_SOCKET_PATH}
+      - HF_CACHE_PATH=${HF_CACHE_PATH}
     volumes:
       - ${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock
-      - .:/app
+      - ${PROJECT_ROOT:-.}:/app
     restart: unless-stopped
