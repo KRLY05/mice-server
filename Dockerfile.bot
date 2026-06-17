@@ -5,7 +5,9 @@ RUN apk add --no-cache docker-cli docker-cli-compose
 WORKDIR /app
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev && \
+    pip install --no-cache-dir -r requirements.txt && \
+    apk del .build-deps
 
 COPY bot/ bot/
 COPY Flux2_single_image_edit.json .
