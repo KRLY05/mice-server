@@ -1,0 +1,7 @@
+# ComfyUI extra model paths configuration
+comfyui:
+    base_path: /models/
+    checkpoints: checkpoints/
+    clip: clip/
+    vae: vae/
+    unet: unet/

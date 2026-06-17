@@ -41,9 +41,10 @@ services:
               count: all
               capabilities: [gpu]
     volumes:
-      - /mnt/c/Users/krly/Programs/ComfyUI-files:/home/runner
+      - /mnt/c/Users/krly/Programs/ComfyUI-files/models:/models
+      - .:/app
     environment:
-      - CLI_ARGS=--listen 0.0.0.0 --port 8188 --disable-auto-launch
+      - CLI_ARGS=--listen 0.0.0.0 --port 8188 --disable-auto-launch --extra-model-paths-yaml /app/extra_model_paths.yaml
     restart: unless-stopped
 
   telegram-bot:
