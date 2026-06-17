@@ -29,7 +29,7 @@ services:
   diffusion-server:
     image: yanwk/comfyui-boot:cu121
     container_name: diffusion-server
-    entrypoint: bash -c "pip install comfy-aimdo && exec bash /runner-scripts/entrypoint.sh"
+    entrypoint: bash -c "pip install comfy-aimdo && exec bash /home/scripts/entrypoint.sh"
     profiles:
       - manual
     ports:
@@ -44,7 +44,7 @@ services:
     volumes:
       - ${COMFYUI_MODELS_PATH:-./models}:/models
       - ${PROJECT_ROOT:-.}/extra_model_paths.yaml:/app/extra_model_paths.yaml
-      - ${PROJECT_ROOT:-.}/.empty:/runner-scripts/download-models.txt
+      - ${PROJECT_ROOT:-.}/.empty:/home/scripts/download-models.txt
     environment:
       - CLI_ARGS=--listen 0.0.0.0 --port 8188 --disable-auto-launch --extra-model-paths-config /app/extra_model_paths.yaml
     restart: unless-stopped
