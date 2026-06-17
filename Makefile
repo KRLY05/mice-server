@@ -4,7 +4,10 @@ setup:
 	@if [ ! -f .env ]; then \
 		echo "HF_TOKEN=" > .env; \
 		echo "TELEGRAM_BOT_TOKEN=" >> .env; \
-		echo "✅ .env template initialized. Please add your tokens."; \
+		echo "COMFYUI_MODELS_PATH=" >> .env; \
+		echo "DOCKER_SOCKET_PATH=/var/run/docker.sock" >> .env; \
+		echo "HF_CACHE_PATH=./hf_cache" >> .env; \
+		echo "✅ .env template initialized. Please add your tokens and paths."; \
 	fi
 
 build:

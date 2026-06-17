@@ -11,6 +11,9 @@ Telegram bot which spins up vllm
    Edit `.env` and fill in:
    - `HF_TOKEN`
    - `TELEGRAM_BOT_TOKEN`
+   - `COMFYUI_MODELS_PATH` (absolute path to ComfyUI models folder)
+   - `DOCKER_SOCKET_PATH` (path to the docker socket, defaults to `/var/run/docker.sock`)
+   - `HF_CACHE_PATH` (directory to store HuggingFace models cache, defaults to `./hf_cache`)
 
 2. **Build and Run**:
    ```bash

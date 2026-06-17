@@ -17,7 +17,7 @@ services:
               count: all
               capabilities: [gpu]
     volumes:
-      - ./hf_cache:/root/.cache/huggingface
+      - ${HF_CACHE_PATH:-./hf_cache}:/root/.cache/huggingface
     command: >
       --model google/gemma-4-12B-it-qat-w4a16-ct
       --max-model-len 32768
@@ -41,10 +41,11 @@ services:
               count: all
               capabilities: [gpu]
     volumes:
-      - /mnt/c/Users/krly/Programs/ComfyUI-files/models:/models
+      - ${COMFYUI_MODELS_PATH:-./models}:/models
       - .:/app
+      - ./.empty:/runner-scripts/download-models.txt
     environment:
-      - CLI_ARGS=--listen 0.0.0.0 --port 8188 --disable-auto-launch --extra-model-paths-yaml /app/extra_model_paths.yaml
+      - CLI_ARGS=--listen 0.0.0.0 --port 8188 --disable-auto-launch --extra-model-paths-config /app/extra_model_paths.yaml
     restart: unless-stopped
 
   telegram-bot:
@@ -55,6 +56,6 @@ services:
     environment:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock
       - .:/app
     restart: unless-stopped
