@@ -1,0 +1,16 @@
+.git
+.github
+.gitignore
+hf_cache/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.*
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+README.md
+Makefile

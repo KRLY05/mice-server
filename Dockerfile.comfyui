@@ -13,8 +13,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /home/runner
 
-# Clone the official ComfyUI repo
-RUN git clone https://github.com/Comfy-Org/ComfyUI.git
+# Clone the official ComfyUI repo (pin to a specific commit for reproducibility)
+# To update: find the latest commit hash at https://github.com/Comfy-Org/ComfyUI/commits/main
+ARG COMFYUI_COMMIT=HEAD
+RUN git clone --depth 1 https://github.com/Comfy-Org/ComfyUI.git && \
+    if [ "$COMFYUI_COMMIT" != "HEAD" ]; then \
+        cd ComfyUI && git fetch --depth 1 origin $COMFYUI_COMMIT && git checkout $COMFYUI_COMMIT; \
+    fi
 
 # Install ComfyUI dependencies
 WORKDIR /home/runner/ComfyUI
@@ -25,7 +30,7 @@ RUN pip install --no-cache-dir comfy-aimdo comfy-kitchen
 
 # Pre-bundle ComfyUI-Manager for easy node installation
 RUN mkdir -p custom_nodes && \
-    git clone https://github.com/ltdrdata/ComfyUI-Manager.git custom_nodes/ComfyUI-Manager
+    git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Manager.git custom_nodes/ComfyUI-Manager
 
 EXPOSE 8188
 

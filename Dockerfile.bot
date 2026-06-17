@@ -7,6 +7,7 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY bot.py .
+COPY bot/ bot/
+COPY Flux2_single_image_edit.json .
 
-CMD ["python", "bot.py"]
+CMD ["python", "-m", "bot"]

@@ -15,5 +15,5 @@ __pycache__/
 venv/
 env/
 
-# ComfyUI Workflow Template
-Flux2_single_image_edit.json
+# Temp files from bot
+temp_*.png

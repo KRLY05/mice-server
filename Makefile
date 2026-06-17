@@ -7,8 +7,10 @@ setup:
 		echo "COMFYUI_MODELS_PATH=" >> .env; \
 		echo "DOCKER_SOCKET_PATH=/var/run/docker.sock" >> .env; \
 		echo "HF_CACHE_PATH=./hf_cache" >> .env; \
-		echo "PROJECT_ROOT=\$$(pwd)" >> .env; \
+		echo "PROJECT_ROOT=$$(pwd)" >> .env; \
 		echo "✅ .env template initialized. Please add your tokens and paths."; \
+	else \
+		echo "ℹ️  .env already exists. Skipping."; \
 	fi
 
 build:
