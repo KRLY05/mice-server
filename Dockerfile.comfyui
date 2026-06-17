@@ -28,9 +28,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install core performance packages recently added/required by ComfyUI
 RUN pip install --no-cache-dir comfy-aimdo comfy-kitchen
 
-# Pre-bundle ComfyUI-Manager for easy node installation
-RUN mkdir -p custom_nodes && \
-    git clone --depth 1 https://github.com/ltdrdata/ComfyUI-Manager.git custom_nodes/ComfyUI-Manager
+# Ensure custom_nodes directory exists
+RUN mkdir -p custom_nodes
 
 EXPOSE 8188
 

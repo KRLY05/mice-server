@@ -5,6 +5,7 @@ setup:
 		echo "HF_TOKEN=" > .env; \
 		echo "TELEGRAM_BOT_TOKEN=" >> .env; \
 		echo "COMFYUI_MODELS_PATH=" >> .env; \
+		echo "COMFYUI_CUSTOM_NODES_PATH=" >> .env; \
 		echo "DOCKER_SOCKET_PATH=/var/run/docker.sock" >> .env; \
 		echo "HF_CACHE_PATH=./hf_cache" >> .env; \
 		echo "PROJECT_ROOT=$$(pwd)" >> .env; \
