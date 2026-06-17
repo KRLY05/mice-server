@@ -1,0 +1,33 @@
+FROM pytorch/pytorch:2.3.1-cuda12.1-cudnn8-runtime
+
+# Install system dependencies required by Git, OpenCV, and custom nodes
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    git-lfs \
+    wget \
+    curl \
+    build-essential \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /home/runner
+
+# Clone the official ComfyUI repo
+RUN git clone https://github.com/Comfy-Org/ComfyUI.git
+
+# Install ComfyUI dependencies
+WORKDIR /home/runner/ComfyUI
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install core performance packages recently added/required by ComfyUI
+RUN pip install --no-cache-dir comfy-aimdo comfy-kitchen
+
+# Pre-bundle ComfyUI-Manager for easy node installation
+RUN mkdir -p custom_nodes && \
+    git clone https://github.com/ltdrdata/ComfyUI-Manager.git custom_nodes/ComfyUI-Manager
+
+EXPOSE 8188
+
+# Start ComfyUI directly with forwarded CLI args
+CMD ["sh", "-c", "python3 main.py --listen 0.0.0.0 --port 8188 --disable-auto-launch ${CLI_ARGS}"]
