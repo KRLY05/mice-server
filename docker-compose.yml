@@ -29,7 +29,7 @@ services:
   diffusion-server:
     build:
       context: .
-      dockerfile: Dockerfile.diffusion
+      dockerfile: Dockerfile.comfyui
     container_name: diffusion-server
     profiles:
       - manual

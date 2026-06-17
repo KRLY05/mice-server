@@ -12,7 +12,7 @@ setup:
 	fi
 
 build:
-	docker compose build
+	docker compose --profile manual build
 
 up: setup
 	docker compose up -d
