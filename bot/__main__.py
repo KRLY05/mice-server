@@ -9,7 +9,7 @@ from telegram.ext import (
 
 from .config import logger, TELEGRAM_BOT_TOKEN, http_client
 from .handlers import (
-    start_cmd, stop_cmd, help_cmd,
+    start_cmd, stop_cmd, help_cmd, group_id_cmd,
     button_callback, handle_photo, handle_message,
     error_handler,
 )
@@ -37,6 +37,7 @@ def main():
     application.add_handler(CommandHandler("start", start_cmd))
     application.add_handler(CommandHandler("stop", stop_cmd))
     application.add_handler(CommandHandler("help", help_cmd))
+    application.add_handler(CommandHandler("group_id", group_id_cmd))
     application.add_handler(CallbackQueryHandler(button_callback))
     application.add_handler(MessageHandler(filters.PHOTO, handle_photo))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))

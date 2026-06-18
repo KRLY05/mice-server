@@ -191,7 +191,8 @@ async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "📖 **Available Commands**\n\n"
         "/start — Show the model selection menu\n"
         "/stop — Stop all running model servers (frees GPU)\n"
-        "/help — Show this help message\n\n"
+        "/help — Show this help message\n"
+        "/group_id — Get the current group or chat ID\n\n"
         "**Diffusion Mode (Flux 2 Image Editing)**\n"
         "1. Select *Diffusion Model 🎨* from the menu\n"
         "2. Upload a photo (optionally include a prompt as the caption)\n"
@@ -201,6 +202,21 @@ async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "1. Select *LLM 🤖* from the menu\n"
         "2. Type your message and get a response",
         parse_mode="Markdown"
+    )
+
+
+async def group_id_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handler for the /group_id command to retrieve the current chat's ID."""
+    chat = update.effective_chat
+    if not chat:
+        return
+    logger.info(f"Chat ID query: {chat.id} ({chat.title or chat.full_name})")
+    await update.message.reply_text(
+        f"📋 <b>Chat Information:</b>\n"
+        f"• <b>Title/Name:</b> <code>{html.escape(chat.title or chat.full_name or 'Unknown')}</code>\n"
+        f"• <b>Chat ID:</b> <code>{chat.id}</code>\n"
+        f"• <b>Type:</b> <code>{chat.type}</code>",
+        parse_mode="HTML"
     )
 
 
