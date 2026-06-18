@@ -59,6 +59,7 @@ services:
     container_name: telegram-bot
     environment:
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - ALLOWED_GROUP_ID=${ALLOWED_GROUP_ID}
       - PROJECT_ROOT=${PROJECT_ROOT}
       - COMFYUI_MODELS_PATH=${COMFYUI_MODELS_PATH}
       - DOCKER_SOCKET_PATH=${DOCKER_SOCKET_PATH}

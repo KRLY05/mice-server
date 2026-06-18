@@ -1,16 +1,65 @@
 import os
 import html
 import asyncio
+from functools import wraps
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
-from .config import logger, VLLM_URL, http_client, WORKFLOWS
+from .config import logger, VLLM_URL, http_client, WORKFLOWS, ALLOWED_GROUP_ID
 from .state import UserState, get_state, set_state, user_photos, polling_tasks, generation_tasks, get_workflow, set_workflow, get_workflow_path
 from .containers import (
     check_vllm_running, check_comfyui_running,
     start_llm_mode, start_diffusion_mode, stop_all_servers,
 )
 from .comfyui import validate_prompt, upload_image, run_workflow
+
+# In-memory cache for user group membership (persists for the process lifetime)
+_membership_cache: dict[int, bool] = {}
+
+
+async def check_user_membership(user_id: int, bot) -> bool:
+    """Check if the user is a member of the allowed group, using process-lifetime cache."""
+    if not ALLOWED_GROUP_ID:
+        return True
+
+    if user_id in _membership_cache:
+        return _membership_cache[user_id]
+
+    try:
+        member = await bot.get_chat_member(chat_id=ALLOWED_GROUP_ID, user_id=user_id)
+        is_member = member.status in ("creator", "administrator", "member", "restricted")
+    except Exception as e:
+        logger.error(f"Error checking membership for user {user_id} in chat {ALLOWED_GROUP_ID}: {e}")
+        is_member = False
+
+    _membership_cache[user_id] = is_member
+    return is_member
+
+
+def check_group_membership(handler_func):
+    """Decorator to enforce that the user must be a member of the allowed group."""
+    @wraps(handler_func)
+    async def wrapper(update: Update, context: ContextTypes.DEFAULT_TYPE, *args, **kwargs):
+        user = update.effective_user
+        if not user:
+            return
+
+        is_allowed = await check_user_membership(user.id, context.bot)
+        if not is_allowed:
+            logger.warning(f"Access denied for user {user.id} (@{user.username or ''})")
+            if update.callback_query:
+                await update.callback_query.answer(
+                    text="❌ Access denied: You must be a member of the mice-server group to use this bot.",
+                    show_alert=True
+                )
+            elif update.effective_message:
+                await update.effective_message.reply_text(
+                    "❌ Access denied: You must be a member of the mice-server group to use this bot."
+                )
+            return
+
+        return await handler_func(update, context, *args, **kwargs)
+    return wrapper
 
 
 # --- Polling Tasks ---
@@ -79,6 +128,7 @@ async def poll_comfyui(chat_id: int, context: ContextTypes.DEFAULT_TYPE):
 
 # --- Command Handlers ---
 
+@check_group_membership
 async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler for the /start command."""
     chat_id = update.effective_chat.id
@@ -112,6 +162,7 @@ async def start_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+@check_group_membership
 async def stop_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler for the /stop command to save GPU resources."""
     chat_id = update.effective_chat.id
@@ -133,6 +184,7 @@ async def stop_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(f"❌ Error stopping servers: <code>{html.escape(str(e))}</code>", parse_mode="HTML")
 
 
+@check_group_membership
 async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler for the /help command."""
     await update.message.reply_text(
@@ -154,6 +206,7 @@ async def help_cmd(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # --- Callback Handler ---
 
+@check_group_membership
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler for keyboard button selections."""
     query = update.callback_query
@@ -230,6 +283,7 @@ def _handle_task_done(chat_id: int):
     return callback
 
 
+@check_group_membership
 async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler for photo uploads in Diffusion Mode."""
     chat_id = update.effective_chat.id
@@ -313,6 +367,7 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
 
 
+@check_group_membership
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler for text prompts / chat messages."""
     chat_id = update.effective_chat.id

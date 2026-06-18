@@ -13,6 +13,15 @@ logger = logging.getLogger("mice-bot")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 VLLM_URL = os.environ.get("VLLM_URL", "http://vllm-server:8000")
 COMFYUI_URL = os.environ.get("COMFYUI_URL", "http://diffusion-server:8188")
+ALLOWED_GROUP_ID = os.environ.get("ALLOWED_GROUP_ID")
+
+if ALLOWED_GROUP_ID:
+    try:
+        if not ALLOWED_GROUP_ID.startswith("@"):
+            ALLOWED_GROUP_ID = int(ALLOWED_GROUP_ID)
+    except ValueError:
+        logger.error(f"Invalid ALLOWED_GROUP_ID: {ALLOWED_GROUP_ID}. Must be an integer or start with '@'.")
+        ALLOWED_GROUP_ID = None
 # Available ComfyUI workflows (stored on the host Windows machine under user/default/workflows/)
 WORKFLOWS = {
     "Edit single image": "/comfyui-files/user/default/workflows/Flux2_single_image_edit.json"
