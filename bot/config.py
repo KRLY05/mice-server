@@ -22,9 +22,9 @@ if ALLOWED_GROUP_ID:
     except ValueError:
         logger.error(f"Invalid ALLOWED_GROUP_ID: {ALLOWED_GROUP_ID}. Must be an integer or start with '@'.")
         ALLOWED_GROUP_ID = None
-# Available ComfyUI workflows (stored on the host Windows machine under user/default/workflows/)
+# Available ComfyUI workflows (stored on the host Windows machine under api_workflows/)
 WORKFLOWS = {
-    "Edit single image": "/comfyui-files/user/default/workflows/Flux2_single_image_edit.json"
+    "Edit single image": "/comfyui-files/api_workflows/Flux2_single_image_edit.json"
 }
 DEFAULT_WORKFLOW = "Edit single image"
 

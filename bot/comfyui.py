@@ -199,7 +199,12 @@ async def run_workflow(chat_id: int, context: ContextTypes.DEFAULT_TYPE, prompt:
         logger.error(f"Generation error: {e}")
         logger.error(f"Full generation traceback:\n{traceback.format_exc()}")
 
-        error_msg = f"❌ <b>Generation failed!</b>\n\n<b>Error:</b>\n<code>{html.escape(str(e))}</code>"
+        if isinstance(e, KeyError):
+            err_details = f"KeyError: {e} (Node not found in workflow file. This usually happens if the workflow is in standard Web UI format instead of 'API format', or if node IDs have changed.)"
+        else:
+            err_details = f"{type(e).__name__}: {e}"
+
+        error_msg = f"❌ <b>Generation failed!</b>\n\n<b>Error:</b>\n<code>{html.escape(err_details)}</code>"
         try:
             await status_msg.edit_text(error_msg, parse_mode="HTML")
         except Exception:
