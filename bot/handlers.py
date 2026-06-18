@@ -4,8 +4,8 @@ import asyncio
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
-from .config import logger, VLLM_URL, http_client
-from .state import UserState, get_state, set_state, user_photos, polling_tasks, generation_tasks
+from .config import logger, VLLM_URL, http_client, WORKFLOWS
+from .state import UserState, get_state, set_state, user_photos, polling_tasks, generation_tasks, get_workflow, set_workflow, get_workflow_path
 from .containers import (
     check_vllm_running, check_comfyui_running,
     start_llm_mode, start_diffusion_mode, stop_all_servers,
@@ -40,6 +40,24 @@ async def poll_vllm(chat_id: int, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+async def show_workflow_selection(chat_id: int, context: ContextTypes.DEFAULT_TYPE, message=None):
+    """Show the workflow selection keyboard to the user."""
+    set_state(chat_id, UserState.SELECTING_WORKFLOW)
+
+    keyboard = []
+    # Build buttons for each configured workflow
+    for wf_name in WORKFLOWS.keys():
+        keyboard.append([InlineKeyboardButton(wf_name, callback_data=f"wf_select:{wf_name}")])
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    text = "🎨 ComfyUI is ready!\n\nPlease select a workflow to load:"
+
+    if message:
+        await message.edit_text(text, reply_markup=reply_markup)
+    else:
+        await context.bot.send_message(chat_id=chat_id, text=text, reply_markup=reply_markup)
+
+
 async def poll_comfyui(chat_id: int, context: ContextTypes.DEFAULT_TYPE):
     """Poll ComfyUI server health."""
     max_attempts = 60  # 5 minutes
@@ -47,12 +65,8 @@ async def poll_comfyui(chat_id: int, context: ContextTypes.DEFAULT_TYPE):
         await asyncio.sleep(5)
         logger.info(f"Polling ComfyUI health, attempt {attempt}/{max_attempts}...")
         if await check_comfyui_running():
-            set_state(chat_id, UserState.WAITING_PHOTO)
-            await context.bot.send_message(
-                chat_id=chat_id,
-                text="🎨 ComfyUI is fully loaded and ready!\n\nTo edit an image with Flux 2, please **upload a photo**.\nYou can add your text prompt as the photo caption, or send the prompt as a message after uploading."
-            )
             polling_tasks.pop(chat_id, None)
+            await show_workflow_selection(chat_id, context)
             return
 
     set_state(chat_id, UserState.MENU)
@@ -173,10 +187,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif choice == "select_diffusion":
         if await check_comfyui_running():
-            set_state(chat_id, UserState.WAITING_PHOTO)
-            await query.edit_message_text(
-                "🎨 ComfyUI is already running!\n\nPlease upload a photo to edit, and add your prompt as the caption."
-            )
+            await show_workflow_selection(chat_id, context, query.message)
             return
 
         set_state(chat_id, UserState.STARTING_DIFFUSION)
@@ -191,6 +202,18 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except Exception as e:
             set_state(chat_id, UserState.MENU)
             await query.message.reply_text(f"❌ Failed to start ComfyUI: <code>{html.escape(str(e))}</code>", parse_mode="HTML")
+
+    elif choice.startswith("wf_select:"):
+        wf_name = choice.split(":", 1)[1]
+        set_workflow(chat_id, wf_name)
+        set_state(chat_id, UserState.WAITING_PHOTO)
+
+        await query.edit_message_text(
+            f"✅ Loaded workflow: <b>{html.escape(wf_name)}</b>\n\n"
+            f"To edit an image, please <b>upload a photo</b>.\n"
+            f"You can add your prompt as the caption, or send it as a message after uploading.",
+            parse_mode="HTML"
+        )
 
 
 # --- Media and Message Handlers ---
@@ -211,6 +234,10 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler for photo uploads in Diffusion Mode."""
     chat_id = update.effective_chat.id
     state = get_state(chat_id)
+
+    if state == UserState.SELECTING_WORKFLOW:
+        await update.message.reply_text("👈 Please select a workflow from the menu above first.")
+        return
 
     if state == UserState.GENERATING:
         await update.message.reply_text(
@@ -290,6 +317,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handler for text prompts / chat messages."""
     chat_id = update.effective_chat.id
     state = get_state(chat_id)
+
+    if state == UserState.SELECTING_WORKFLOW:
+        await update.message.reply_text("👈 Please select a workflow from the menu above first.")
+        return
 
     if state == UserState.CHATTING:
         message_text = update.message.text

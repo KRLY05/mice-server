@@ -13,7 +13,11 @@ logger = logging.getLogger("mice-bot")
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 VLLM_URL = os.environ.get("VLLM_URL", "http://vllm-server:8000")
 COMFYUI_URL = os.environ.get("COMFYUI_URL", "http://diffusion-server:8188")
-WORKFLOW_PATH = os.environ.get("WORKFLOW_PATH", "/app/Flux2_single_image_edit.json")
+# Available ComfyUI workflows (stored on the host Windows machine under user/default/workflows/)
+WORKFLOWS = {
+    "Edit single image": "/comfyui-files/user/default/workflows/Flux2_single_image_edit.json"
+}
+DEFAULT_WORKFLOW = "Edit single image"
 
 # Workflow node IDs (from Flux2_single_image_edit.json)
 NODE_LOAD_IMAGE = "76"

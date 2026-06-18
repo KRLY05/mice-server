@@ -10,6 +10,5 @@ RUN apk add --no-cache --virtual .build-deps gcc musl-dev python3-dev && \
     apk del .build-deps
 
 COPY bot/ bot/
-COPY Flux2_single_image_edit.json .
 
 CMD ["python", "-m", "bot"]

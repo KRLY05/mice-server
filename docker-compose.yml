@@ -66,4 +66,5 @@ services:
     volumes:
       - ${DOCKER_SOCKET_PATH:-/var/run/docker.sock}:/var/run/docker.sock
       - ${PROJECT_ROOT:-.}:/app
+      - ${COMFYUI_MODELS_PATH:-./models}:/comfyui-files
     restart: unless-stopped

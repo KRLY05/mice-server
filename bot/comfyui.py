@@ -10,11 +10,11 @@ import websockets
 from telegram.ext import ContextTypes
 
 from .config import (
-    logger, COMFYUI_URL, WORKFLOW_PATH, http_client,
+    logger, COMFYUI_URL, http_client,
     NODE_LOAD_IMAGE, NODE_POSITIVE_PROMPT, NODE_RANDOM_NOISE, NODE_SAVE_IMAGE,
     STATUS_EDIT_INTERVAL,
 )
-from .state import UserState, set_state, user_photos
+from .state import UserState, set_state, user_photos, get_workflow, get_workflow_path
 
 
 def validate_prompt(prompt: str) -> str | None:
@@ -50,9 +50,11 @@ async def run_workflow(chat_id: int, context: ContextTypes.DEFAULT_TYPE, prompt:
 
     try:
         # 1. Load the workflow template
-        await status_msg.edit_text("🔍 Loading workflow template (Flux 2)...")
+        workflow_path = get_workflow_path(chat_id)
+        wf_name = get_workflow(chat_id)
+        await status_msg.edit_text(f"🔍 Loading workflow: <b>{html.escape(wf_name)}</b>...", parse_mode="HTML")
         try:
-            with open(WORKFLOW_PATH, "r") as f:
+            with open(workflow_path, "r") as f:
                 workflow = json.load(f)
         except Exception as file_err:
             raise Exception(f"Failed to read workflow file: {file_err}")
