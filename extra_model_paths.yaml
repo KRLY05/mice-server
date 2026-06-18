@@ -1,3 +1,9 @@
-# ComfyUI extra model paths configuration
-comfyui:
-    base_path: /models/
+# ComfyUI extra_model_paths.yaml (replicated from Windows AppData extra_models_config.yaml)
+comfyui_desktop:
+  is_default: "true"
+  custom_nodes: custom_nodes/
+  download_model_base: models
+  base_path: /models/
+desktop_extensions:
+  custom_nodes: /home/runner/ComfyUI/custom_nodes/
+

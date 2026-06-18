@@ -49,7 +49,7 @@ services:
       - ${COMFYUI_CUSTOM_NODES_PATH:-./custom_nodes}:/home/runner/ComfyUI/custom_nodes
       - ${PROJECT_ROOT:-.}/extra_model_paths.yaml:/home/runner/ComfyUI/extra_model_paths.yaml
     environment:
-      - CLI_ARGS=
+      - CLI_ARGS=--base-directory /models
     restart: unless-stopped
 
   telegram-bot:
